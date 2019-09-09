@@ -4,3 +4,5 @@
 data/
 *.png
 load_data/config/load_data.yml
+*.feather
+output/
