@@ -1,9 +1,10 @@
-data_dir = data
-output_dir = output
+data_dir=data
+output_dir=output
+parent_dir=C:\Users\seanc\OneDrive\Documents\NYC_DOC_Visualizations
 
 .PHONY: all
-.DEFAULT_GOAL := all
-
+.DEFAULT_GOAL: all
 all:
-    cd generate_features && make \
-    cd generate_visualizations && make
+	cd $(parent_dir)\load_data && make \
+	cd $(parent_dir)\generate_demographics && make \
+	cd $(parent_dir)\generate_visualizations && make
