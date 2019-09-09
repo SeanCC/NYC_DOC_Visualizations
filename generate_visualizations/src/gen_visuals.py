@@ -22,7 +22,7 @@ def main(datelog,
 def incarcerated_dists(inmates, date, output_directory):
     fig, ax = plt.subplots(figsize=(12,8))
     ax.set_xlim(0, 2000)
-    for race in ['W', 'B', 'O']:
+    for race in ['W', 'B', 'O', 'A']:
         rsub = inmates[inmates['race'] == race]
         sns.distplot(rsub['length_incarcerated'], hist=False, kde=True, label = race )
     fig.savefig(f'{output_directory}/{date}_length_incarcerated_dists.png')
@@ -31,49 +31,64 @@ def incarcerated_dists(inmates, date, output_directory):
 def incarc_level(demographics, date, output_directory):
     incarc_level_df = demographics.groupby(['custody_level', 'race']).sum()['count'].reset_index()
 
-    # Pivot by incarceration level
+    # Pivot by custody level - race
     pivot=incarc_level_df.pivot(index='custody_level', columns='race', values='count')
     pivot = pivot.reindex()
     plot = pivot.plot(kind = 'barh', stacked=True, alpha=0.9, colormap='viridis')
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
     fig = plot.get_figure()
-    fig.savefig(f'{output_directory}/{date}_stacked_bar_incarc_pivot.png')
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_custody_race_pivot.png')
 
-    # Pivot by race
+    # Pivot by race - custody level
     pivot=incarc_level_df.pivot(index='race', columns='custody_level', values='count')
     plot = pivot.plot(kind='barh', stacked=True, alpha=0.9, colormap='cividis')
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
     fig=plot.get_figure()
-    fig.savefig(f'{output_directory}/{date}_stacked_bar_race_pivot.png')
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_race_custody_pivot.png')
 
-    # Pivot by gang affiliation
+    # Pivot by gang affiliation - custody level
     incarc_level_df = demographics.groupby(['custody_level', 'srg_flg']).sum()['count'].reset_index()
     pivot = incarc_level_df.pivot(index='srg_flg', columns='custody_level', values='count')
     plot=pivot.plot(kind='barh', stacked=True, alpha=0.9, colormap='viridis')
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
-    fig=plot.get_figure()
-    fig.savefig(f'{output_directory}/{date}_stacked_bar_gang_pivot.png')
-    return()
+    fig = plot.get_figure()
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_gang_custody_pivot.png')
+
+    # Pivot by gang affiliation - race
+    incarc_level_df = demographics.groupby(['race', 'srg_flg']).sum()['count'].reset_index()
+    pivot = incarc_level_df.pivot(index='race', columns='srg_flg', values='count')
+    plot=pivot.plot(kind='barh', stacked=True, alpha=0.9, colormap='cividis')
+    plot.set_facecolor('whitesmoke')
+    plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
+    fig = plot.get_figure()
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_gang_race_pivot.png')
 
     
 def incarc_race_chart(demographics, date, output_directory):
     incarc_df = demographics.groupby(['race', 'gender']).sum().reset_index().sort_values("count", ascending=False)
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.set_color_codes("deep")
-    sns.barplot(x="count", y="race", color="r", data=incarc_df, ci=None)
+    sns.barplot(x="count", y="race", color="r", data=incarc_df, ci=None, )
+    top_bar = plt.Rectangle((0,0), 1, 1, fc="r")
     sns.set_color_codes("muted")
     sns.barplot(x="count", y="race", color="b", data=incarc_df[incarc_df['gender'] == 'F'], ci=None )
+    bottom_bar = plt.Rectangle((0,0), 1, 1, fc="b")
+    plt.legend([top_bar, bottom_bar], ['Male', 'Female'], loc='best', ncol=2, prop={'size':16})
+
     fig.savefig(f'{output_directory}/{date}_incarc_race_chart.png')
 
     incarc_df.sort_values("sum_days", ascending=False, inplace=True)
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.set_color_codes("deep")
     sns.barplot(x="sum_days", y="race", color="r", data=incarc_df, ci=None)
+    top_bar = plt.Rectangle((0,0), 1, 1, fc="r")
     sns.set_color_codes("muted")
     sns.barplot(x="sum_days", y="race", color="b", data=incarc_df[incarc_df['gender'] == 'F'], ci=None)
+    bottom_bar = plt.Rectangle((0,0), 1, 1, fc="b")
+    plt.legend([top_bar, bottom_bar], ['Male', 'Female'], loc='best', ncol=2, prop={'size':16})
     fig.savefig(f'{output_directory}/{date}_incarc_race_chart_time.png')
 
 

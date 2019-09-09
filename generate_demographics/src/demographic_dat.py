@@ -8,21 +8,28 @@ def main(inmates_dir,
          date_file,
         demo_output,
         inmates_output):
+    # Get last date and load inmates file for that date
     date = ""
     with open(date_file, 'r') as log:
         dates = log.readlines()
         last_date = dates[len(dates)-1].rstrip()
-
     inmates = pd.read_feather(f'{inmates_dir}/{last_date}_inmates.feather')
 
+    # Generate length incarcerated feature, save feather
     last_date_dt = pd.to_datetime(datetime.utcfromtimestamp(int(last_date)).strftime('%m-%d-%Y'))
     inmates['admitted_dt'] = pd.to_datetime(inmates['admitted_dt'])
     inmates['length_incarcerated'] = (last_date_dt - inmates['admitted_dt']).dt.days
     inmates.to_feather(f'{inmates_output}/{last_date}_inmates.feather')
+    
+    # Convert I and U to O in race column
     inmates.loc[inmates['race'].isin(['I', 'U']), 'race'] = 'O'
+
+    # Groupby columns we care about, convert to df
     demo_data = inmates.groupby(['race', 'gender', 'custody_level', 'srg_flg']).count()[['inmateid']]
     demo_df = demo_data.reset_index()
     demo_df.rename(columns={'inmateid': 'count'}, inplace=True)
+
+    # Generate avg_length and sum_days features, then save df to file
     demo_df[['count']] = demo_df[['count']].fillna(value=0)
     demo_df[['avg_length']] = inmates.groupby(['race','gender','custody_level', 'srg_flg']).mean()[['length_incarcerated']].reset_index()[['length_incarcerated']]
     demo_df[['avg_length']] = demo_df[['avg_length']].fillna(value=0)

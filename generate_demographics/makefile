@@ -3,8 +3,8 @@ demographics=src/demographic_dat.py
 # Input files
 date_file=$(data_dir)/dates.txt
 # Output files
-inmates_out=$(output_dir)
-demographics_out=$(output_dir)
+inmates_out=$(data_dir)
+demographics_out=$(data_dir)
 .PHONY: all
 .DEFAULT: all
 all: 

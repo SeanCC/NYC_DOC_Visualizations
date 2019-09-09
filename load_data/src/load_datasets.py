@@ -8,9 +8,12 @@ import pyarrow
 def main(data_config,
     date_log,
     output_directory):
-    inmates_client = sodapy.Socrata(data_config['service_url'], None)
-    data = inmates_client.get(data_config['endpoint'], content_type='json')
-    date = inmates_client.get_metadata(data_config['endpoint'])["rowsUpdatedAt"]
+    inmates_client = sodapy.Socrata(data_config['service_url'], data_config['apptoken'], username=data_config['username'], password=data_config['password'])
+    metadata = inmates_client.get_metadata(data_config['endpoint'])
+    count = inmates_client.get(data_config['endpoint'], query="select COUNT(*)")
+    date = metadata["rowsUpdatedAt"]
+    data = inmates_client.get(data_config['endpoint'], content_type='json', limit=count[0]['COUNT'])
+
     inmates_df = pd.io.json.json_normalize(data)
     inmates_df.to_feather(f'{output_directory}/{date}_inmates.feather')
     with open(date_log, 'a') as log:
