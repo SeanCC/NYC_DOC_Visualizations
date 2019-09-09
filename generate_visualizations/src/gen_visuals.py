@@ -25,7 +25,7 @@ def incarcerated_dists(inmates, date, output_directory):
     for race in ['W', 'B', 'O']:
         rsub = inmates[inmates['race'] == race]
         sns.distplot(rsub['length_incarcerated'], hist=False, kde=True, label = race )
-    fig.savefig(f'{date}_length_incarcerated_dists.png')
+    fig.savefig(f'{output_directory}/{date}_length_incarcerated_dists.png')
 
 
 def incarc_level(demographics, date, output_directory):
@@ -33,11 +33,12 @@ def incarc_level(demographics, date, output_directory):
 
     # Pivot by incarceration level
     pivot=incarc_level_df.pivot(index='custody_level', columns='race', values='count')
+    pivot = pivot.reindex()
     plot = pivot.plot(kind = 'barh', stacked=True, alpha=0.9, colormap='viridis')
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
     fig = plot.get_figure()
-    fig.savefig(f'{date}_stacked_bar_incarc_pivot.png')
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_incarc_pivot.png')
 
     # Pivot by race
     pivot=incarc_level_df.pivot(index='race', columns='custody_level', values='count')
@@ -45,7 +46,7 @@ def incarc_level(demographics, date, output_directory):
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
     fig=plot.get_figure()
-    fig.savefig(f'{date}_stacked_bar_race_pivot.png')
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_race_pivot.png')
 
     # Pivot by gang affiliation
     incarc_level_df = demographics.groupby(['custody_level', 'srg_flg']).sum()['count'].reset_index()
@@ -54,7 +55,7 @@ def incarc_level(demographics, date, output_directory):
     plot.set_facecolor('whitesmoke')
     plot.xaxis.grid(True, linestyle='-', linewidth=0.5)
     fig=plot.get_figure()
-    fig.savefig(f'{date}_stacked_bar_gang_pivot.png')
+    fig.savefig(f'{output_directory}/{date}_stacked_bar_gang_pivot.png')
     return()
 
     
@@ -65,7 +66,7 @@ def incarc_race_chart(demographics, date, output_directory):
     sns.barplot(x="count", y="race", color="r", data=incarc_df, ci=None)
     sns.set_color_codes("muted")
     sns.barplot(x="count", y="race", color="b", data=incarc_df[incarc_df['gender'] == 'F'], ci=None )
-    fig.savefig(f'{date}_incarc_race_chart.png')
+    fig.savefig(f'{output_directory}/{date}_incarc_race_chart.png')
 
     incarc_df.sort_values("sum_days", ascending=False, inplace=True)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -73,7 +74,7 @@ def incarc_race_chart(demographics, date, output_directory):
     sns.barplot(x="sum_days", y="race", color="r", data=incarc_df, ci=None)
     sns.set_color_codes("muted")
     sns.barplot(x="sum_days", y="race", color="b", data=incarc_df[incarc_df['gender'] == 'F'], ci=None)
-    fig.savefig(f'{date}_incarc_race_chart_time.png')
+    fig.savefig(f'{output_directory}/{date}_incarc_race_chart_time.png')
 
 
 

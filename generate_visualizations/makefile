@@ -4,9 +4,7 @@ visualizations = src/gen_visuals.py
 date_file=$(data_dir)/dates.txt
 inmate_dir = $(data_dir)
 demo_dir = $(data_dir)
-# Output files
-inmates_out=$(output_dir)
-demographics_out=$(output_dir)
+
 .PHONY: all
 .DEFAULT: all
 all: 
